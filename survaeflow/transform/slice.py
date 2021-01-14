@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 from . import Transform
-from ..utils import gaussian_nll
+from ..utils import gll
 
 
 class Slice(Transform):
@@ -35,7 +35,7 @@ class Slice(Transform):
         # [B, ..., C - slice, ...]
         sample = self.decoder(z)
         # [B]
-        ldj = gaussian_nll(sample, x2)
+        ldj = gll(sample, x2)
         # [B, ..., slice, ...], [B]
         return z, ldj
 
