@@ -92,7 +92,7 @@ class GenSlice(Transform):
         z2 = self.decoder(inputs)
         # [B, ..., C, ...]
         z = tf.concat([z1, z2], axis=self.axis)
-        # [], since decoder is deterministic, log-deterministic becomes zero.
+        # [], since decoder is deterministic, log-determinant becomes zero.
         ldj = 0.
         return z, ldj
 
