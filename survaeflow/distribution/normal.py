@@ -7,7 +7,7 @@ from . import Distribution
 class Normal(Distribution):
     """Gaussian normal distribution.
     """
-    def __init__(self, mean, std):
+    def __init__(self, mean, std=1.):
         """Initializer.
         Args:
             mean: tf.Tensor, [tf.float32; [B, ...]], mean tensor.
