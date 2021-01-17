@@ -86,6 +86,9 @@ class GenSlice(Transform):
         """Recover the sliced tensor and compute log-determinant.
         Args:
             inputs: tf.Tensor, [tf.float32; [B, ..., slice, ...]], input tensor.
+        Returns:
+            z: tf.Tensor, [tf.float32; [B, ..., C, ...]], recovered tensor.
+            ldj: float, likelihood contribution.
         """
         z1 = inputs
         # [B, ..., C - slice, ...]
