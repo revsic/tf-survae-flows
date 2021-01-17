@@ -65,3 +65,60 @@ class Slice(Transform):
         x2 = self.decoder(x1)
         # [B, ..., C, ...]
         return tf.concat([x1, x2], axis=self.axis)
+
+
+class GenSlice(Transform):
+    """Tensor slice for generative surjection.
+    """
+    def __init__(self, slice, decoder, axis=-1):
+        """Initializer.
+        Args:
+            slice: int, slice size.
+            decoder: tf.keras.Model, posterior approximator (deterministic).
+            axis: int, slice axis.
+        """
+        super(GenSlice, self).__init__()
+        self.slice = slice
+        self.decoder = decoder
+        self.axis = axis
+    
+    def call(self, inputs):
+        """Recover the sliced tensor and compute log-determinant.
+        Args:
+            inputs: tf.Tensor, [tf.float32; [B, ..., slice, ...]], input tensor.
+        """
+        z1 = inputs
+        # [B, ..., C - slice, ...]
+        z2 = self.decoder(inputs)
+        # [B, ..., C, ...]
+        z = tf.concat([z1, z2], axis=self.axis)
+        # [], since decoder is deterministic, log-deterministic becomes zero.
+        ldj = 0.
+        return z, ldj
+
+    def forward(self, inputs):
+        """Recover the removed tensor.
+        Args:
+            inputs: tf.Tensor, [tf.float32; [B, ..., slice, ...]], input tensor.
+        Returns:
+            tf.Tensor, [tf.float32; [B, ..., C, ...]], recovered tensor.
+        """
+        z1 = inputs
+        # [B, ..., C - slice, ...]
+        z2 = self.decoder(inputs)
+        # [B, ..., C, ...]
+        return tf.concat([z1, z2], axis=self.axis)
+
+    def inverse(self, inputs):
+        """Slice the inputs to transform to the latent.
+        Args:
+            inputs: tf.Tensor, [tf.float32; [B, ..., C, ...]], input tensor.
+        Returns:
+            tf.Tensor, [tf.float32; [B, ..., slice, ...]], sliced tensor.
+        """
+        # C
+        channels = tf.shape(inputs)[self.axis]
+        # [B, ..., slice, ...], [B, ..., C - slice, ...]
+        x1, _ = tf.split(inputs, [self.slice, channels - self.slice], self.axis)
+        # [B, ..., slice, ...]
+        return x1
