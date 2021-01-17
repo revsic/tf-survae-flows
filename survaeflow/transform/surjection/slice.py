@@ -1,7 +1,7 @@
 import tensorflow as tf
 
-from . import Transform
-from ..distribution.normal import Normal
+from .. import Transform
+from ...distribution.normal import Normal
 
 
 class Slice(Transform):

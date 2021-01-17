@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from . import Transform
+from .. import Transform
 
 
 class Round(Transform):
