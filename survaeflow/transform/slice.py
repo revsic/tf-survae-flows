@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 from . import Transform
-from ..utils import gll
+from ..distribution.normal import Normal
 
 
 class Slice(Transform):
@@ -35,7 +35,7 @@ class Slice(Transform):
         # [B, ..., C - slice, ...]
         sample = self.decoder(z)
         # [B]
-        ldj = gll(sample, x2)
+        ldj = Normal(x2).log_prob(sample)
         # [B, ..., slice, ...], [B]
         return z, ldj
 
