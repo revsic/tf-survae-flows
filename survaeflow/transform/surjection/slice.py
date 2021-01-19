@@ -62,7 +62,7 @@ class Slice(Transform):
         """
         x1 = inputs
         # [B, ..., C - slice, ...]
-        x2 = self.decoder(x1)
+        x2 = Normal(self.decoder(x1)).sample()
         # [B, ..., C, ...]
         return tf.concat([x1, x2], axis=self.axis)
 
@@ -92,11 +92,13 @@ class GenSlice(Transform):
         """
         z1 = inputs
         # [B, ..., C - slice, ...]
-        z2 = self.decoder(inputs)
+        posterior = Normal(self.decoder(inputs))
+        # [B, ..., C - slice, ...]
+        z2 = posterior.sample()
         # [B, ..., C, ...]
         z = tf.concat([z1, z2], axis=self.axis)
-        # [], since decoder is deterministic, log-determinant becomes zero.
-        ldj = 0.
+        # []
+        ldj = -posterior.log_prob(z2)
         return z, ldj
 
     def forward(self, inputs):
@@ -108,7 +110,7 @@ class GenSlice(Transform):
         """
         z1 = inputs
         # [B, ..., C - slice, ...]
-        z2 = self.decoder(inputs)
+        z2 = Normal(self.decoder(inputs)).sample()
         # [B, ..., C, ...]
         return tf.concat([z1, z2], axis=self.axis)
 
