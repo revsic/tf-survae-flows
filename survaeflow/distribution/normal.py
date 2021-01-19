@@ -13,7 +13,7 @@ class Normal(Distribution):
             mean: tf.Tensor, [tf.float32; [B, ...]], mean tensor.
             std: tf.Tensor, [tf.float32; [B, ...]], standard deviation.
         """
-        super(Distribution, self).__init__()
+        super(Normal, self).__init__()
         self.mean = mean
         self.std = std
 
