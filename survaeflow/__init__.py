@@ -4,12 +4,14 @@ import tensorflow as tf
 class Flow(tf.keras.Model):
     """Invertible flow.
     """
-    def __init__(self, networks):
+    def __init__(self, prior, networks):
         """Initializer.
         Args:
+            prior: Distribution, latent prior.
             networks: List[tf.keras.Model], sequence of transforms.
         """
         super(Flow, self).__init__()
+        self.prior = prior
         self.networks = networks
     
     def call(self, inputs):
@@ -25,7 +27,7 @@ class Flow(tf.keras.Model):
         for net in self.networks:
             z, contrib = net(z)
             ldj = ldj + contrib
-        return z, ldj
+        return z, self.prior.log_prob(z) + ldj
 
     def forward(self, inputs):
         """Generate latent.
