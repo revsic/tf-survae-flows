@@ -35,6 +35,8 @@ class Checkerboard:
         
         def __next__(self):
             """Generate sample.
+            Returns:
+                np.ndarray, [np.float32; [size, 2]], checkerboard samples.
             """
             if self.last >= self.total:
                 raise StopIteration()
@@ -47,7 +49,7 @@ class Checkerboard:
             Args:
                 size: int, the number of the points.
             Returns:
-                np.ndarray, [np.int32; [size, 2]]
+                np.ndarray, [np.float32; [size, 2]], checkerboard samples.
             """
             # [B], [-2, 2)
             x1 = tf.random.uniform([size], -2, 2)
