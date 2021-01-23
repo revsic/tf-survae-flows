@@ -35,7 +35,7 @@ class Conv1x1(Transform):
         z = tf.matmul(inputs, self.kernel)
         # []
         _, ldj = tf.linalg.slogdet(self.kernel)
-        ldj = ldj * tf.reduce_prod(tf.shape(inputs)[1:-1])
+        ldj = ldj * tf.cast(tf.reduce_prod(tf.shape(inputs)[1:-1]), tf.float32)
         return z, ldj
 
     def forward(self, inputs):
