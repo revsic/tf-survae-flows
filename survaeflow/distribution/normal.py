@@ -7,15 +7,15 @@ from . import Distribution
 class Normal(Distribution):
     """Gaussian normal distribution.
     """
-    def __init__(self, mean, std=1.):
+    def __init__(self, mean, logstd=0.):
         """Initializer.
         Args:
             mean: tf.Tensor, [tf.float32; [B, ...]], mean tensor.
-            std: tf.Tensor, [tf.float32; [B, ...]], standard deviation.
+            logstd: tf.Tensor, [tf.float32; [B, ...]], log standard deviation.
         """
         super(Normal, self).__init__()
         self.mean = mean
-        self.std = std
+        self.logstd = logstd
 
     def log_prob(self, samples):
         """Compute log-likelihood from samples.
@@ -25,8 +25,8 @@ class Normal(Distribution):
             tf.Tensor, [tf.float32; [B]], log-likelihood.
         """
         return -0.5 * tf.reduce_sum(
-            tf.log(2 * np.pi * self.std) + \
-                self.std ** -2 * tf.square(samples - self.mean),
+            np.log(2 * np.pi) + self.logstd + \
+                tf.exp(-2 * self.logstd) * tf.square(samples - self.mean),
             axis=tf.shape(samples)[1:])
     
     def sample(self, shape=None):
@@ -39,4 +39,4 @@ class Normal(Distribution):
         """
         if shape is None:
             shape = tf.shape(self.mean)
-        return tf.random.normal(shape) * self.std + self.mean
+        return tf.random.normal(shape) * tf.exp(self.logstd) + self.mean
