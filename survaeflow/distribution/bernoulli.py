@@ -25,11 +25,16 @@ class Bernoulli(Distribution):
             -tf.nn.sigmoid_cross_entropy_with_logits(samples, logits=self.logits),
             axis=tf.shape(self.logits)[1:])
 
-    def sample(self):
+    def sample(self, shape=None):
         """Sample from normal distribution (not backpropagatble).
+        Args:
+            shape: Optional[Tuple[int]], sample size.
+                If None, it will be replaced with shape of self.logits.
         Returns:
             tf.Tensor, [tf.float32; [B, ...]], sampled.
         """
         prob = tf.sigmoid(self.logits)
+        if shape is None:
+            shape = tf.shape(prob)
         return tf.cast(
-            tf.random.uniform(tf.shape(prob)) < prob, tf.float32)
+            tf.random.uniform(shape) < prob, tf.float32)

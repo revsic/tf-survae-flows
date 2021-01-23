@@ -29,9 +29,14 @@ class Normal(Distribution):
                 self.std ** -2 * tf.square(samples - self.mean),
             axis=tf.shape(samples)[1:])
     
-    def sample(self):
+    def sample(self, shape=None):
         """Sample from normal distribution.
+        Args:
+            shape: Optional[Tuple[int]], sample size.
+                If None, it will be replaced with shape of self.mean.
         Returns:
             tf.Tensor, [tf.float32; [B, ...]], sampled.
         """
-        return tf.random.normal(tf.shape(self.mean)) * self.std + self.mean
+        if shape is None:
+            shape = tf.shape(self.mean)
+        return tf.random.normal(shape) * self.std + self.mean
