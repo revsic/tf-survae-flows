@@ -1,6 +1,7 @@
 import tensorflow as tf
 
 from . import Distribution
+from ..utils import sum_except_batch
 
 
 class Uniform(Distribution):
@@ -25,9 +26,8 @@ class Uniform(Distribution):
         """
         lb = tf.cast(self.min <= samples, tf.float32)
         ub = tf.cast(self.max > samples, tf.float32)
-        return tf.reduce_sum(
-            tf.math.log(lb * ub) - tf.math.log(self.max - self.min),
-            axis=tf.shape(samples)[1:])
+        return sum_except_batch(
+            tf.math.log(lb * ub) - tf.math.log(self.max - self.min))
 
     def sample(self, shape=None):
         """Sample from normal distribution.

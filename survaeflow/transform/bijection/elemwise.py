@@ -1,7 +1,7 @@
-from numpy.lib.financial import irr
 import tensorflow as tf
 
 from .. import Transform
+from ...utils import sum_except_batch
 
 
 class Sigmoid(Transform):
@@ -28,9 +28,8 @@ class Sigmoid(Transform):
         # [B, ...]
         z = tf.nn.sigmoid(self.temperature * inputs)
         # [B]
-        ldj = tf.reduce_sum(
-            tf.math.log(self.temperature) - tf.nn.softplus(-inputs) - tf.nn.softplus(inputs),
-            axis=tf.shape(inputs)[1:])
+        ldj = sum_except_batch(
+            tf.math.log(self.temperature) - tf.nn.softplus(-inputs) - tf.nn.softplus(inputs))
         return z, ldj
 
     def forward(self, inputs):
@@ -84,9 +83,8 @@ class Logit(Transform):
         # [B, ...]
         z = ir / self.temperature
         # [B]
-        ldj = -tf.reduce_mean(
-            tf.math.log(self.temperature) - tf.nn.softplus(-ir) - tf.nn.softplus(ir),
-            axis=tf.shape(inputs)[1:])
+        ldj = -sum_except_batch(
+            tf.math.log(self.temperature) - tf.nn.softplus(-ir) - tf.nn.softplus(ir))
         return z, ldj
     
     def forward(self, inputs):

@@ -1,6 +1,7 @@
 import tensorflow as tf
 
 from .. import Transform
+from ...utils import sum_except_batch
 
 
 class AffineCoupling(Transform):
@@ -33,7 +34,7 @@ class AffineCoupling(Transform):
         # [B, ...]
         z = tf.concat([x1, x2], axis=self.axis)
         # [B]
-        ldj = tf.reduce_sum(logstd, axis=tf.shape(logstd)[1:])
+        ldj = sum_except_batch(logstd)
         return z, ldj
 
     def forward(self, inputs):

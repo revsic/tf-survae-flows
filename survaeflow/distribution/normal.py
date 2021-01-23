@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 
 from . import Distribution
+from ..utils import sum_except_batch
 
 
 class Normal(Distribution):
@@ -24,10 +25,9 @@ class Normal(Distribution):
         Returns:
             tf.Tensor, [tf.float32; [B]], log-likelihood.
         """
-        return -0.5 * tf.reduce_sum(
+        return -0.5 * sum_except_batch(
             np.log(2 * np.pi) + self.logstd + \
-                tf.exp(-2 * self.logstd) * tf.square(samples - self.mean),
-            axis=tf.shape(samples)[1:])
+                tf.exp(-2 * self.logstd) * tf.square(samples - self.mean))
     
     def sample(self, shape=None):
         """Sample from normal distribution.

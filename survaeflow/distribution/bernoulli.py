@@ -1,6 +1,7 @@
 import tensorflow as tf
 
 from . import Distribution
+from ..utils import sum_except_batch
 
 
 class Bernoulli(Distribution):
@@ -21,9 +22,8 @@ class Bernoulli(Distribution):
         Returns:
             tf.Tensor, [tf.float32; [B]], log-likelihood.
         """
-        return tf.reduce_sum(
-            -tf.nn.sigmoid_cross_entropy_with_logits(samples, logits=self.logits),
-            axis=tf.shape(self.logits)[1:])
+        return sum_except_batch(
+            -tf.nn.sigmoid_cross_entropy_with_logits(samples, logits=self.logits))
 
     def sample(self, shape=None):
         """Sample from normal distribution (not backpropagatble).
