@@ -13,6 +13,11 @@ class Checkerboard:
         self.total = total
         self.batch = batch
 
+    def __len__(self):
+        """Return the number of full iterations for 1 epoch.
+        """
+        return self.total // self.batch
+
     def __iter__(self):
         """Create sampler.
         Returns:
