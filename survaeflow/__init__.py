@@ -52,3 +52,13 @@ class Flow(tf.keras.Model):
         for net in self.networks[::-1]:
             sample = net.inverse(sample)
         return sample
+
+    def sample(self, shape):
+        """Sample from prior.
+        Args:
+            shape: Tuple[int], shape of the prior.
+        Returns:
+            tf.Tensor, [tf.float32; [size, ...]], sampled.
+        """
+        latent = self.prior.sample(shape)
+        return self.inverse(latent)
