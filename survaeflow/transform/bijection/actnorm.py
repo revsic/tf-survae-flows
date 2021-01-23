@@ -20,7 +20,7 @@ class ActNorm(Transform):
         Args:
             input_shape: Tuple[int], input shape.
         """
-        self.initialized = tf.Variable(False, dtype=tf.bool)
+        self.initialized = tf.constant(False, dtype=tf.bool)
         self.mu = tf.Variable(
             tf.zeros(shape=(input_shape[self.axis],)))
         self.log_sigma = tf.Variable(
@@ -35,16 +35,21 @@ class ActNorm(Transform):
             ldj: tf.Tensor, [tf.float32; []], log-determinant of jacobian.
         """
         if not self.initialized:
-            axis = list(range(len(inputs)))
-            axis = axis[:self.axis] + axis[self.axis + 1:]
+            dim = len(inputs.shape)
+            target = self.axis
+            if target < 0:
+                target += dim
+            
+            axis = list(range(dim))
+            axis = axis[:target] + axis[target + 1:]
             # [C], [C]
-            mean, variance = tf.nn.moments(inputs, axis=axis)
+            mean, variance = tf.nn.moments(inputs, axes=axis)
             # assign input stats
             self.mu.assign(mean)
             self.log_sigma.assign(0.5 * tf.math.log(variance + 1e-5))
-            self.initialized.assign(True)
+            self.initialized = tf.constant(True, tf.bool)
             # update multiplier
-            self.mult = tf.reduce_prod(tf.shape(inputs)[axis[1:]])
+            self.mult = tf.cast(tf.reduce_prod(tf.shape(inputs)[axis[1:]]), tf.float32)
         # [B, ..., C, ...]        
         z = (inputs - self.mu) / tf.exp(self.log_sigma)
         # []
