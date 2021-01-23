@@ -30,7 +30,7 @@ class Uniform(Distribution):
             axis=tf.shape(samples)[1:])
 
     def sample(self, shape=None):
-        """Sample from normal distribution (not backpropagatble).
+        """Sample from normal distribution.
         Args:
             shape: Optional[Tuple[int]], sample size.
                 If None, it will be replaced with shape of self.logits.
@@ -42,4 +42,4 @@ class Uniform(Distribution):
                 raise ValueError(
                     'if shape is None, self.mean should be tensor or numpy array')
             shape = tf.shape(self.min)
-        return tf.random.uniform(shape, self.min, self.max)
+        return tf.random.uniform(shape) * (self.max - self.min) + self.min
