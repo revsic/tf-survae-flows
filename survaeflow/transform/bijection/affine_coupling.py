@@ -27,13 +27,13 @@ class AffineCoupling(Transform):
         # [B, ..., C // 2, ...], [B, ..., C // 2, ...]
         x1, x2 = tf.split(inputs, 2, axis=self.axis)
         # [B, ..., C // 2, ...], [B, ..., C // 2, ...]
-        mu, std = self.encoder(x2)
+        mu, logstd = self.encoder(x2)
         # [B, ..., C // 2, ...]
-        x1 = x1 * std + mu
+        x1 = x1 * tf.exp(logstd) + mu
         # [B, ...]
         z = tf.concat([x1, x2], axis=self.axis)
         # [B]
-        ldj = tf.reduce_sum(tf.log(std), axis=tf.shape(std)[1:])
+        ldj = tf.reduce_sum(logstd, axis=tf.shape(logstd)[1:])
         return z, ldj
 
     def forward(self, inputs):
@@ -46,9 +46,9 @@ class AffineCoupling(Transform):
         # [B, ..., C // 2, ...], [B, ..., C // 2, ...]
         x1, x2 = tf.split(inputs, 2, axis=self.axis)
         # [B, ..., C // 2, ...], [B, ..., C // 2, ...]
-        mu, std = self.encoder(x2)
+        mu, logstd = self.encoder(x2)
         # [B, ..., C // 2, ...]
-        x1 = x1 * std + mu
+        x1 = x1 * tf.exp(logstd) + mu
         # [B, ...]
         return tf.concat([x1, x2], axis=self.axis)
     
@@ -64,8 +64,8 @@ class AffineCoupling(Transform):
         # [B, ..., C // 2, ...]
         x2 = z2
         # [B, ..., C // 2, ...]
-        mu, std = self.encoder(x2)
+        mu, logstd = self.encoder(x2)
         # [B, ..., C // 2, ...]
-        x1 = (z1 - mu) / std
+        x1 = (z1 - mu) / tf.exp(logstd)
         # [B, ..., C // 2, ...]
         return tf.concat([x1, x2], axis=self.axis)
