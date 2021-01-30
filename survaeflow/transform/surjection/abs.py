@@ -28,7 +28,7 @@ class Abs(Transform):
         # [B, ...]
         sign = tf.sign(inputs)
         # [B], label negative as 0, positive as 1
-        ldj = Bernoulli(self.decoder(inputs)).log_prob((sign + 1) / 2)
+        ldj = Bernoulli(self.decoder(z)).log_prob((sign + 1.) / 2.)
         return z, ldj
 
     def forward(self, inputs):
