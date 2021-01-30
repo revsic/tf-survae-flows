@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from . import Distribution
+from .basedist import Distribution
 from ..utils import sum_except_batch
 
 
