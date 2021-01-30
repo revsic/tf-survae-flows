@@ -18,7 +18,7 @@ class Scale(Transform):
     def call(self, inputs):
         """Scale inputs.
         Args:
-            inputs: tf.Tensor, [tf.flaot32; [B, ...]], inputs.
+            inputs: tf.Tensor, [tf.float32; [B, ...]], inputs.
         Returns:
             z: tf.Tensor, [tf.float32; [B, ...]], scaled.
             ldj: tf.Tensor, [tf.float32; []], log-determinant of jacobian.
