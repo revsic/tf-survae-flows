@@ -9,14 +9,16 @@
 
 For checking exeperiments, reference experiment page.
 
-- [WIP] [experiments/checkerboard.ipynb](./experiments/checkerboard.ipynb), checkerboard toy samples for AbsFlow.
+- [experiments/checkerboard.ipynb](./experiments/checkerboard.ipynb), checkerboard toy samples for AbsFlow.
 - [experiments/vae.ipynb](./experiments/vae.ipynb), MNIST samples for VAE.
 
 Checkerboard baseline
 
 ![checkerboard baseline](rsrc/checkerboard_baseline.png)
 
-[WIP] Checkerboard AbsFlow
+Checkerboard AbsFlow
+
+![checkerboard abseflow](rsrc/checkerboard_absflow.png)
 
 MNIST-VAE on survae-flow framework
 
