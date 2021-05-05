@@ -13,18 +13,47 @@ class ActNorm(Transform):
         """
         super(ActNorm, self).__init__()
         self.axis = axis
-        self.mult = 1.
-        self.initialized = False
+        self.init = tf.Variable(0., trainable=False)
     
     def build(self, input_shape):
         """Generate the parameters.
         Args:
             input_shape: Tuple[int], input shape.
         """
+        self.mult = tf.Variable(1., trainable=False)
         self.mu = tf.Variable(
             tf.zeros(shape=(input_shape[self.axis],)))
         self.log_sigma = tf.Variable(
             tf.zeros(shape=(input_shape[self.axis],)))
+
+    def initialized(self):
+        """Check whether this object is initialized with ddi or not.
+        Returns:
+            bool, whether initialized or not.
+        """
+        return self.init == 1.
+
+    def ddi(self, inputs):
+        """Data-dependent initialization.
+        Args:
+            inputs: tf.Tensor, [tf.float32; [B, ..., C, ...]], input tensor.
+        """
+        dim = len(inputs.shape)
+        target = self.axis
+        if target < 0:
+            target += dim
+        
+        axis = list(range(dim))
+        axis = axis[:target] + axis[target + 1:]
+        # [C], [C]
+        mean, variance = tf.nn.moments(inputs, axes=axis)
+        # assign input stats
+        self.mu.assign(mean)
+        self.log_sigma.assign(0.5 * tf.math.log(variance + 1e-5))
+        # update multiplier
+        self.mult.assign(
+            tf.cast(tf.reduce_prod(tf.shape(inputs)[axis[1:]]), tf.float32))
+        self.init.assign(1.)
 
     def call(self, inputs):
         """Run activation normalization and compute log-determinant of jacobian.
@@ -34,23 +63,8 @@ class ActNorm(Transform):
             z: tf.Tensor, [tf.float32; [B, ..., C, ...]], normalized.
             ldj: tf.Tensor, [tf.float32; []], log-determinant of jacobian.
         """
-        if not self.initialized:
-            dim = len(inputs.shape)
-            target = self.axis
-            if target < 0:
-                target += dim
-            
-            axis = list(range(dim))
-            axis = axis[:target] + axis[target + 1:]
-            # [C], [C]
-            mean, variance = tf.nn.moments(inputs, axes=axis)
-            # assign input stats
-            self.mu.assign(mean)
-            self.log_sigma.assign(0.5 * tf.math.log(variance + 1e-5))
-            # update multiplier
-            self.mult = tf.cast(tf.reduce_prod(tf.shape(inputs)[axis[1:]]), tf.float32)
-            # trig initialized
-            self.initialized = True
+        if not self.initialized():
+            self.ddi(inputs)
         # [B, ..., C, ...]        
         z = (inputs - self.mu) / tf.exp(self.log_sigma)
         # []
@@ -66,7 +80,7 @@ class ActNorm(Transform):
         Raises:
             RuntimeError, if method `call` is not called before.
         """
-        if not self.initialized:
+        if not self.initialized():
             raise RuntimeError('method `call` is not called before')
         return (inputs - self.mu) / tf.exp(self.log_sigma)
 
